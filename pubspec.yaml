@@ -12,9 +12,11 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  syncfusion_flutter_pdfviewer: ^20.3.59
+#  syncfusion_flutter_pdfviewer: ^20.3.59
   flutter_localizations:
     sdk: flutter
+
+  google_mobile_ads: ^2.3.0
 
 
 dev_dependencies:
@@ -28,4 +30,4 @@ flutter:
 
   assets:
    - asset/images/
-   - asset/pdf/
+#   - asset/pdf/

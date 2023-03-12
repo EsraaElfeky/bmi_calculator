@@ -1,12 +1,14 @@
-import 'package:BMI/project_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'screen/BMI_SCREEN.dart';
+import 'screen/bmi_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
   await SystemChrome.setPreferredOrientations(
     [DeviceOrientation.portraitUp],
   );
@@ -25,8 +27,8 @@ class BMIApp extends StatelessWidget {
 
       // supportedLocales: [Locale('ar')],
 
-       //locale: Locale("ar"),
-      home:BmiScreen(),
+      //locale: Locale("ar"),
+      home: BmiScreen(),
     );
   }
 }

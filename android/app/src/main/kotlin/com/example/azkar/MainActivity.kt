@@ -1,4 +1,4 @@
-package com.example.azkar
+package com.esraa.bmi
 
 import io.flutter.embedding.android.FlutterActivity
 

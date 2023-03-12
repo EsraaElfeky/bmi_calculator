@@ -1,13 +1,10 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
-
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'ResultScreen.dart';
+import 'result_screen.dart';
 
 class BmiScreen extends StatefulWidget {
   const BmiScreen({Key? key}) : super(key: key);
@@ -17,13 +14,46 @@ class BmiScreen extends StatefulWidget {
 }
 
 class _BmiScreenState extends State<BmiScreen> {
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
+  final adUnitId = 'ca-app-pub-9237577594756341/2670624661';
+
   bool? isMale;
   double hight = 50;
   int age = 0;
   int weight = 0;
   bool cancel = false;
-  int bmi=0;
+  int bmi = 0;
   Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    loadAd();
+  }
+
+  void loadAd() {
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          debugPrint('$ad loaded.');
+          setState(() {
+            _isLoaded = true;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, err) {
+          // debugPrint('BannerAd failed to load: $error');
+          // Dispose the ad here to free resources.
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +87,7 @@ class _BmiScreenState extends State<BmiScreen> {
                             ? Colors.blue
                             : Colors.grey.withOpacity(0.5),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image.asset(
                               'asset/images/male.png',
@@ -89,6 +120,7 @@ class _BmiScreenState extends State<BmiScreen> {
                             ? Colors.pink
                             : Colors.grey.withOpacity(0.5),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image.asset(
                               'asset/images/female.png',
@@ -200,7 +232,8 @@ class _BmiScreenState extends State<BmiScreen> {
                           ),
                           GestureDetector(
                             onLongPress: () => setState(() {
-                              timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+                              timer = Timer.periodic(
+                                  const Duration(milliseconds: 50), (timer) {
                                 setState(() {
                                   age++;
                                 });
@@ -223,7 +256,8 @@ class _BmiScreenState extends State<BmiScreen> {
                           ),
                           GestureDetector(
                             onLongPress: () => setState(() {
-                              timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+                              timer = Timer.periodic(
+                                  const Duration(milliseconds: 50), (timer) {
                                 setState(() {
                                   age--;
                                 });
@@ -284,13 +318,12 @@ class _BmiScreenState extends State<BmiScreen> {
                               });
                             },
                             onLongPress: () {
-                              setState(() {
-
-                              });
+                              setState(() {});
                             },
                             child: GestureDetector(
                               onLongPress: () => setState(() {
-                                timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+                                timer = Timer.periodic(
+                                    const Duration(milliseconds: 50), (timer) {
                                   setState(() {
                                     weight++;
                                   });
@@ -314,7 +347,8 @@ class _BmiScreenState extends State<BmiScreen> {
                           ),
                           GestureDetector(
                             onLongPress: () => setState(() {
-                              timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+                              timer = Timer.periodic(
+                                  const Duration(milliseconds: 50), (timer) {
                                 setState(() {
                                   weight--;
                                 });
@@ -353,7 +387,50 @@ class _BmiScreenState extends State<BmiScreen> {
             child: MaterialButton(
               onPressed: () {
                 double result = weight / pow(hight / 100, 2);
-                print(result.round());
+                if (age <= 0 || weight <= 0) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'احنا هنستهبل',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.pink,
+                                ),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                '🤪',
+                                style: TextStyle(fontSize: 40),
+                              ),
+                            ),
+                            MaterialButton(
+                              color: Colors.red,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'خلاص ',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                  return;
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -370,7 +447,20 @@ class _BmiScreenState extends State<BmiScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-          )
+          ),
+          const SizedBox(height: 10),
+          if (_bannerAd != null)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SafeArea(
+                child: SizedBox(
+                  width: _bannerAd!.size.width.toDouble(),
+                  height: _bannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd!),
+                ),
+              ),
+            ),
+          const SizedBox(height: 10),
         ],
       ),
     );
